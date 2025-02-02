@@ -112,9 +112,9 @@ write.csv(loadingdata,filepath_pca_loading, row.names=FALSE)
 #size of the dots in the plot can be changed
 #by modifying the location of "geom_point(size=)
 dev.new()
-color_scale <- c("Ck_p" = "lightcoral", "Ck_q" = "tomato", "Ck_r" = "red", "Ck_s" = "darkred",
-                 "Ic_p" = "lightskyblue", "Ic_s" = "darkblue",
-                 "Lj_q" = "mediumspringgreen", "Lj_r" = "green", "Lj_s" = "darkgreen")
+color_scale <- c("Ck_p" = "lightpink2", "Ck_q" = "coral", "Ck_r" = "red", "Ck_s" = "darkred",
+                 "Ic_p" = "skyblue", "Ic_s" = "darkblue",
+                 "Lj_q" = "palegreen", "Lj_r" = "green", "Lj_s" = "darkgreen")
 
 pca_scoreplot <-  ggplot(score, aes(x = PC1,y = PC2,shape = side)) +
   geom_point(aes(color = species_area), size = 3) +
@@ -129,7 +129,7 @@ pca_scoreplot <-  ggplot(score, aes(x = PC1,y = PC2,shape = side)) +
         axis.text.x = element_text(size = 14),
         axis.text.y = element_text(size = 14),
         axis.ticks.length = unit(-0.2, "cm"),
-        legend.position = "none")
+        legend.position = "none")#+
 
 #Drawing an Ellipse
 pca_scoreplot <- pca_scoreplot +
@@ -143,7 +143,7 @@ print(pca_scoreplot)
 #unit is in inch
 filename_pca_scoreplot <- paste0(format(Sys.Date(), "%y%m%d"),"_PCA_scoreplot", ".png")
 filepath_pca_scoreplot <- file.path(DesktopPath, filename_pca_scoreplot)
-ggsave(filepath_pca_scoreplot, dpi=400, width=6, height=6)
+ggsave(filepath_pca_scoreplot, dpi=400, width=10, height=6)
 
 
 #Basic plot settings
@@ -168,69 +168,6 @@ filepath_toploading_score <- file.path(DesktopPath, filename_toploading_score)
 write.csv(top_loading_pc1, filepath_toploading_score, row.names=FALSE)
 
 
-#Scaling to adjust arrow length according to contribution
-scale_factor <- 5000  #Set scaling factor
-top_loading_pc1$PC1 <- top_loading_pc1$PC1 * scale_factor
-top_loading_pc1$PC2 <- top_loading_pc1$PC2 * scale_factor
-
-#Add loading as arrows
-pca_scoreplot2 <- pca_scoreplot2 +
-  geom_segment(data = top_loading_pc1,  #Use data frame of top 10 loading scores
-               aes(x = 0, y = 0, xend = PC1, yend = PC2),
-               arrow = arrow(length = unit(0.2, "inches")),
-               color = "red", linewidth = 1) +
-  geom_text(data = top_loading_pc1, aes(x = PC1, y = PC2, label = Variable), 
-            vjust = -0.5, hjust = 1.5, color = "red")  #Add label
-
-#Show Plot
-print(pca_scoreplot2)
-
-#Save the plot as png format
-#you can change to .jpeg, .tiff, etc
-#unit is in inch
-filename_pca_scoreplot2 <- paste0(format(Sys.Date(), "%y%m%d"),"_PCA_scoreplot_loading", ".png")
-filepath_pca_scoreplot2 <- file.path(DesktopPath, filename_pca_scoreplot2)
-ggsave(filepath_pca_scoreplot2, dpi=400, width=6, height=6)
-
-
-#Draw the pc1_pc3 scoreplot
-#size of the dots in the plot can be changed
-#by modifying the location of "geom_point(size=)
-dev.new()
-color_scale <- c("Ck_p" = "lightcoral", "Ck_q" = "tomato", "Ck_r" = "red", "Ck_s" = "darkred",
-                 "Ic_p" = "lightskyblue", "Ic_s" = "darkblue",
-                 "Lj_q" = "mediumspringgreen", "Lj_r" = "green", "Lj_s" = "darkgreen")
-
-pca_scoreplot3 <-  ggplot(score, aes(x = PC1,y = PC3,shape = side)) +
-  geom_point(aes(color = species_area), size = 3) +
-  scale_color_manual(values=color_scale) +
-  scale_shape_manual(values = c("o" = 1, "u" = 0)) +
-  theme_bw()+
-  theme(panel.background = element_rect(fill = "transparent"),
-        panel.border = element_rect (fill = "transparent", color = "black", linewidth = 1), 
-        text = element_text(size = 14),
-        axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14),
-        axis.text.x = element_text(size = 14),
-        axis.text.y = element_text(size = 14),
-        axis.ticks.length = unit(-0.2, "cm"),
-        legend.position = "none")
-
-#Drawing an Ellipse
-pca_scoreplot3 <- pca_scoreplot3 +
-  stat_ellipse(aes(color = species_area, linetype = side), type = "norm", level = 0.95) +
-  scale_linetype_manual(values = c("o" = "solid", "u" = "dashed"))
-
-print(pca_scoreplot3)
-
-#Save the plot as png format
-#you can change to .jpeg, .tiff, etc
-#unit is in inch
-filename_pca_scoreplot3 <- paste0(format(Sys.Date(), "%y%m%d"),"_PCA_scoreplot_PC3", ".png")
-filepath_pca_scoreplot3 <- file.path(DesktopPath, filename_pca_scoreplot3)
-ggsave(filepath_pca_scoreplot3, dpi=400, width=6, height=6)
-
-
 #Extract contribution data
 contribution <- as.data.frame(t(summary(pc)$importance))
 names(contribution) <- c("standard_deviation","proportion_of_variance","cumulative_proportion")
@@ -243,6 +180,7 @@ filename_pca_contribution <- paste0(format(Sys.Date(), "%y%m%d"),"_PCA_contribut
 filepath_pca_contribution <- file.path(DesktopPath, filename_pca_contribution)
 write.csv(contribution, filepath_pca_contribution, row.names=FALSE)
 
+
 #Extract top 9 from the contribution data, and save as a png file
 top9_contribution <-  dplyr::slice(contribution, 1:9)
 contribution_plot <-  ggplot(top9_contribution, aes(x = PC, y = proportion_of_variance)) +
@@ -253,91 +191,8 @@ print(contribution_plot)
 filename_pca_contribution_plot <- paste0(format(Sys.Date(), "%y%m%d"),"_PCA_contribution_plot", ".png")
 filepath_pca_contribution_plot <- file.path(DesktopPath, filename_pca_contribution_plot)
 ggsave(file = filepath_pca_contribution_plot,
-             plot = contribution_plot, dpi=400,
-             width=6, height=6)
+       plot = contribution_plot, dpi=400,
+       width=6, height=6)
 
-#Prepare data for loading plot
-pc_loading <- data.frame(t(cor(pc$x,rowspecs_numeric)))
-pc_score <- data.frame(pc$x)
-
-#draw the 2D-loading plot using ggplot
-#color info can be seen in the following website
-#http://sape.inf.usi.ch/quick-reference/ggplot2/colour
-
-#Generate colors based on number of rows in pc_loading
-colors <- rainbow(nrow(pc_loading))
-#Displays a bar graph to check the generated colors
-barplot(rep(1, length(colors)), col = colors, border = NA, main = "Generated Colors")
-
-
-g0 <- ggplot()
-g0 <- g0 + geom_segment(data=pc_loading,
-                        aes(x=0,y=0,xend=(PC1*1),yend=(PC2*1)),
-                        colour = colors,alpha=0.2,linewidth=0.5)
-
-g0 <- g0 + xlab("PC1")
-g0 <- g0 + ylab("PC2")
-g0 <- g0 + theme_bw()
-g0 <- g0 + theme(panel.background = element_rect(fill = "transparent"),
-                 panel.border = element_rect (fill = "transparent", color = "black", linewidth =  1), 
-                 axis.title.x = element_text(size = 14),
-                 axis.title.y = element_text(size = 14),
-                 axis.text.x = element_text(size = 14),
-                 axis.text.y = element_text(size = 14),
-                 axis.ticks.length = unit(-0.2, "cm"))
-
-print(g0)
-
-filename_pca_loading2d_plot <- paste0(format(Sys.Date(), "%y%m%d"),"_PCA_loading2Dplot", ".png")
-filepath_pca_loading2D_plot <- file.path(DesktopPath, filename_pca_loading2d_plot)
-ggsave(file = filepath_pca_loading2D_plot,
-       plot = g0, dpi=400,width=6, height=6)
-
-#draw the 1D-loading barplot
-#prepare x-axis data
-wn_x_axis <- as.data.frame(c(seq(400, 3600, by= 1)))
-names(wn_x_axis) <- c("wavenumber")
-pc_loading2 <- cbind(wn_x_axis, pc_loading)
-
-#draw the PC1 loading barplot
-g1 <- ggplot(data=pc_loading2, 
-             aes(x=wavenumber, y=PC1))
-g1 <- g1 + geom_bar(stat="identity", col=colors)
-g1 <- g1 + theme_bw()+theme(panel.background = element_rect(fill = "transparent"),
-                            panel.border = element_rect (fill = "transparent", color = "black", linewidth = 1), 
-                            text = element_text(size = 14),
-                            axis.title.x = element_text(size = 14),
-                            axis.title.y = element_text(size = 14),
-                            axis.text.x = element_text(size = 14),
-                            axis.text.y = element_text(size = 14),
-                            axis.ticks.length = unit(-0.2, "cm"),
-                            legend.position = "none")
-print(g1)
-
-filename_pca_PC1_loadingplot <- paste0(format(Sys.Date(), "%y%m%d"),"_PCA_PC1_loadingplot", ".png")
-filepath_pca_PC1_loadingplot <- file.path(DesktopPath, filename_pca_PC1_loadingplot)
-ggsave(file = filepath_pca_PC1_loadingplot, plot = g1, dpi=400,
-       width=6, height=1.5)
-
-#draw the PC2 loading barplot
-g2 <- ggplot(data=pc_loading2, 
-             aes(x=wavenumber, y=PC2))
-g2 <- g2 + geom_bar(stat="identity", col=colors)
-g2 <- g2 + theme_bw()+theme(panel.background = element_rect(fill = "transparent"),
-                            panel.border = element_rect (fill = "transparent", color = "black", linewidth = 1), 
-                            text = element_text(size = 14),
-                            axis.title.x = element_text(size = 14),
-                            axis.title.y = element_text(size = 14),
-                            axis.text.x = element_text(size = 14),
-                            axis.text.y = element_text(size = 14),
-                            axis.ticks.length = unit(-0.2, "cm"),
-                            legend.position = "none")
-print(g2)
-
-filename_pca_PC2_loadingplot <- paste0(format(Sys.Date(), "%y%m%d"),"_PCA_PC2_loadingplot", ".png")
-filepath_pca_PC2_loadingplot <- file.path(DesktopPath, filename_pca_PC2_loadingplot)
-ggsave(file = filepath_pca_PC2_loadingplot, plot = g2, dpi=400,
-       width=6, height=1.5)
 
 #End of script
-
